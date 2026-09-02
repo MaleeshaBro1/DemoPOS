@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo POS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">DEMO POS</div>
+        <nav class="nav">
+            <button class="nav-item active" data-page="orders">Orders</button>
+            <button class="nav-item" data-page="kitchen">Kitchen</button>
+            <button class="nav-item" data-page="status">Status</button>
+            <button class="nav-item" data-page="history">History</button>
+            <button class="nav-item" data-page="products">Products</button>
+            <button class="nav-item" data-page="stock">Stock</button>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <section id="orders-page" class="page active">
+            <div class="page-title">New Order</div>
+
+            <fieldset class="groupbox">
+                <legend>Customer Information</legend>
+                <div class="customer-grid">
+                    <label>Customer Name:</label>
+                    <input id="customer-name" placeholder="Enter customer name">
+                    <label>Phone 1:</label>
+                    <input id="phone1" placeholder="Primary phone number">
+                    <label>Phone 2:</label>
+                    <input id="phone2" placeholder="Secondary phone number (optional)">
+                    <label>Address:</label>
+                    <input id="address" placeholder="Customer address">
+                    <label>Table Number:</label>
+                    <input id="table-number" type="number" min="1" value="1">
+                </div>
+            </fieldset>
+
+            <fieldset class="groupbox add-food">
+                <legend>Add Food</legend>
+                <div class="food-row">
+                    <input id="food-search" class="food-search" placeholder="Search by product code or name...">
+                    <select id="food-select"></select>
+                    <div class="quantity-wrap">
+                        <span>Quantity:</span>
+                        <input id="food-quantity" type="number" min="1" value="1">
+                    </div>
+                    <button id="add-food" class="text-button">Add</button>
+                </div>
+            </fieldset>
+
+            <div class="order-table-wrap">
+                <table class="data-table order-table">
+                    <thead>
+                    <tr>
+                        <th>Code</th><th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th>
+                    </tr>
+                    </thead>
+                    <tbody id="current-items">
+                    <tr class="empty-table"><td colspan="5"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="order-bottom">
+                <div class="left-actions">
+                    <button id="remove-selected" class="text-button">Remove Selected</button>
+                    <button id="clear-order" class="text-button">Clear Order</button>
+                </div>
+                <div class="total-area">
+                    <strong id="order-total">Total: Rs. 0.00</strong>
+                    <button id="save-order" class="text-button save">SAVE ORDER</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="kitchen-page" class="page">
+            <div class="page-heading-row">
+                <div class="page-title">Kitchen</div>
+                <button class="small-button" id="kitchen-refresh">Refresh</button>
+            </div>
+            <div class="large-panel kitchen-panel" id="kitchen-list">
+                <div class="center-message">No orders waiting for preparation.</div>
+            </div>
+        </section>
+
+        <section id="status-page" class="page">
+            <div class="page-heading-row">
+                <div class="page-title">Order Status</div>
+                <button class="small-button" id="status-refresh">Refresh</button>
+            </div>
+            <div class="large-panel table-panel">
+                <table class="data-table status-table">
+                    <thead><tr><th>Order</th><th>Customer</th><th>Table</th><th>Total</th><th>Status</th><th>Created</th></tr></thead>
+                    <tbody id="status-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="history-page" class="page">
+            <div class="page-heading-row">
+                <div class="page-title">Order History</div>
+                <div class="heading-actions">
+                    <input id="history-search" class="heading-search" placeholder="Search by order number or customer...">
+                    <button class="small-button" id="history-refresh">Refresh</button>
+                </div>
+            </div>
+            <div class="large-panel table-panel">
+                <table class="data-table history-table">
+                    <thead><tr><th></th><th>Order</th><th>Customer</th><th>Table</th><th>Total</th><th>Status</th><th>Created</th></tr></thead>
+                    <tbody id="history-list"></tbody>
+                </table>
+            </div>
+            <div class="bottom-right-action"><button class="text-button" id="view-history">View Selected Order</button></div>
+        </section>
+
+        <section id="products-page" class="page">
+            <div class="page-heading-row">
+                <div class="page-title">Products</div>
+                <div class="heading-actions">
+                    <input id="product-search" class="heading-search" placeholder="Search by code or product name...">
+                    <button class="text-button" id="add-product">+ Add Product</button>
+                </div>
+            </div>
+            <div class="large-panel table-panel">
+                <table class="data-table products-table">
+                    <thead><tr><th></th><th>Code</th><th>Product Name</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
+                    <tbody id="products-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="stock-page" class="page">
+            <div class="page-heading-row">
+                <div class="page-title">Stock</div>
+                <button class="small-button" id="stock-refresh">Refresh</button>
+            </div>
+            <div class="large-panel table-panel">
+                <table class="data-table">
+                    <thead><tr><th>Code</th><th>Product Name</th><th>Current Stock</th><th>Status</th></tr></thead>
+                    <tbody id="stock-list"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

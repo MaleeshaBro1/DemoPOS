@@ -42,14 +42,22 @@
 
             <fieldset class="groupbox add-food">
                 <legend>Add Food</legend>
-                <div class="food-row">
-                    <input id="food-search" class="food-search" placeholder="Search by product code or name...">
-                    <select id="food-select"></select>
+                <input id="food-search" class="food-search-full" placeholder="Search by product name or code...">
+
+                <div class="food-carousel">
+                    <button id="carousel-prev" class="carousel-arrow" aria-label="Scroll left">&#8249;</button>
+                    <div class="carousel-track-wrap">
+                        <div class="carousel-track" id="food-cards"></div>
+                    </div>
+                    <button id="carousel-next" class="carousel-arrow" aria-label="Scroll right">&#8250;</button>
+                </div>
+
+                <div class="add-food-bottom">
                     <div class="quantity-wrap">
                         <span>Quantity:</span>
                         <input id="food-quantity" type="number" min="1" value="1">
                     </div>
-                    <button id="add-food" class="text-button">Add</button>
+                    <button id="add-food" class="text-button save">ADD TO ORDER</button>
                 </div>
             </fieldset>
 

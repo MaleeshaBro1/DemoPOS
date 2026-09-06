@@ -34,26 +34,53 @@ function renderPage(page) {
 }
 
 const foodSearch = document.getElementById("food-search");
-const foodSelect = document.getElementById("food-select");
+const foodCardsTrack = document.getElementById("food-cards");
+const carouselTrackWrap = document.querySelector(".carousel-track-wrap");
+let selectedFoodId = null;
 
 function refreshFoodSelect(filter = "") {
     const q = filter.trim().toLowerCase();
     const matches = products.filter(p =>
         !q || p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
     );
-    foodSelect.innerHTML = "";
-    matches.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p.id;
-        option.textContent = `${p.code} - ${p.name} (Rs. ${p.price.toFixed(2)}) [Stock: ${p.stock}]`;
-        foodSelect.appendChild(option);
+
+    if (selectedFoodId !== null && !matches.some(p => p.id === selectedFoodId)) {
+        selectedFoodId = null;
+    }
+
+    if (!matches.length) {
+        foodCardsTrack.innerHTML = '<div class="carousel-empty">No matching products.</div>';
+        return;
+    }
+
+    foodCardsTrack.innerHTML = matches.map(p => `
+        <div class="food-card${p.id === selectedFoodId ? " selected" : ""}" data-id="${p.id}">
+            <div class="food-card-code">${escapeHtml(p.code)}</div>
+            <div class="food-card-name">${escapeHtml(p.name)}</div>
+            <div class="food-card-price">Rs. ${p.price.toFixed(2)}</div>
+            <div class="food-card-stock">Stock: ${p.stock}</div>
+        </div>`).join("");
+
+    foodCardsTrack.querySelectorAll(".food-card").forEach(card => {
+        card.addEventListener("click", () => {
+            selectedFoodId = Number(card.dataset.id);
+            foodCardsTrack.querySelectorAll(".food-card").forEach(c => c.classList.remove("selected"));
+            card.classList.add("selected");
+        });
     });
 }
 foodSearch.addEventListener("input", () => refreshFoodSelect(foodSearch.value));
 refreshFoodSelect();
 
+document.getElementById("carousel-prev").addEventListener("click", () => {
+    carouselTrackWrap.scrollBy({ left: -190, behavior: "smooth" });
+});
+document.getElementById("carousel-next").addEventListener("click", () => {
+    carouselTrackWrap.scrollBy({ left: 190, behavior: "smooth" });
+});
+
 document.getElementById("add-food").addEventListener("click", () => {
-    const id = Number(foodSelect.value);
+    const id = selectedFoodId;
     const qty = Math.max(1, Number(document.getElementById("food-quantity").value) || 1);
     const product = products.find(p => p.id === id);
     if (!product) return toast("Select a product first.");
@@ -138,6 +165,7 @@ function clearCustomerForm() {
     document.getElementById("table-number").value = "1";
     document.getElementById("food-search").value = "";
     document.getElementById("food-quantity").value = "1";
+    selectedFoodId = null;
     refreshFoodSelect();
 }
 

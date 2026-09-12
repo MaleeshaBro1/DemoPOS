@@ -494,7 +494,14 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 .add-food-button:hover, .primary-button:hover { background: #d99000; }
 .add-food-button:active, .primary-button:active { transform: translateY(1px); }
 
-.order-table-wrap { height: 242px; }
+.order-table-wrap {
+    height: 180px;
+    margin: 0 1px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    overflow: auto;
+    background: var(--panel);
+}
 .order-table th { height: 42px; }
 .order-table td { height: 38px; }
 

@@ -229,7 +229,7 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 }
 
 .product-stock {
-    color: var(--muted);
+    color: var(--text);
     font-size: 9px;
     text-align: center;
 }
@@ -493,7 +493,7 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 .add-food-button:hover, .primary-button:hover { background: #d99000; }
 .add-food-button:active, .primary-button:active { transform: translateY(1px); }
 
-.order-table-wrap { height: 340px; }
+.order-table-wrap { height: 350px; }
 .order-table th { height: 42px; }
 .order-table td { height: 38px; }
 
@@ -547,11 +547,11 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 
 /* Keep the order-entry hierarchy compact: picker above, large order list below. */
 .customer-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.order-table-wrap { height: 360px; }
+.order-table-wrap { height: 370px; }
 .add-food { padding-top: 9px; padding-bottom: 9px; }
-.product-browser { height: 136px; overflow: hidden; }
-.product-cards { height: 126px; align-items: flex-start; overflow: hidden; flex-wrap: wrap; }
-.product-card { flex: 1 1 150px; max-width: 155px; min-width: 125px; min-height: 126px; }
+.product-browser { height: 145px; overflow: hidden; }
+.product-cards { height: 130px; align-items: flex-start; overflow: hidden; flex-wrap: wrap; }
+.product-card { flex: 1 1 150px; max-width: 160px; min-width: 125px; min-height: 130px; }
 
 .add-food-button { min-width: 145px; }
 .products-table th:nth-child(1) { width: 58px; }
@@ -587,13 +587,13 @@ html, body { height: 100%; overflow: hidden; }
 #orders-page .order-table-wrap {
     flex: 1 1 auto;
     height: auto;
-    min-height: 110px;
+    min-height: 120px;
     overflow-y: auto;
 }
 
 #orders-page .order-bottom {
-    flex: 0 0 53px;
-    min-height: 53px;
+    flex: 0 0 60px;
+    min-height: 60px;
 }
 
 /* Keep the product picker compact so SAVE ORDER always has room. */
@@ -609,17 +609,17 @@ html, body { height: 100%; overflow: hidden; }
 }
 
 #orders-page .product-browser {
-    height: 116px;
+    height: 150px;
     padding: 6px 8px;
 }
 
 #orders-page .product-cards {
-    height: 102px;
+    height: 110px;
     gap: 7px;
 }
 
 #orders-page .product-card {
-    min-height: 102px;
+    min-height: 110px;
 }
 
 #orders-page .product-card .product-image,
@@ -637,12 +637,12 @@ html, body { height: 100%; overflow: hidden; }
 
 /* ===== v9 product card image proportions ===== */
 #orders-page .product-browser {
-    height: 156px;
+    height: 168px;
     padding: 8px 9px;
 }
 
 #orders-page .product-cards {
-    height: 138px;
+    height: 140px;
     align-items: flex-start;
     flex-wrap: nowrap;
     gap: 9px;
@@ -653,8 +653,8 @@ html, body { height: 100%; overflow: hidden; }
     width: 150px;
     min-width: 150px;
     max-width: 150px;
-    min-height: 138px;
-    height: 138px;
+    min-height: 140px;
+    height: 140px;
     padding: 6px 8px;
     grid-template-rows: auto 64px auto auto;
     gap: 3px;

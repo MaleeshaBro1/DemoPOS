@@ -350,8 +350,7 @@ input:focus, select:focus { border-color: #536171; outline: none; }
     border: 1px solid var(--border);
     border-radius: 7px;
     background: var(--panel);
-    min-height: 0;
-    height: calc(100vh - 115px);
+    min-height: calc(100vh - 95px);
     overflow: auto;
 }
 
@@ -494,14 +493,7 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 .add-food-button:hover, .primary-button:hover { background: #d99000; }
 .add-food-button:active, .primary-button:active { transform: translateY(1px); }
 
-.order-table-wrap {
-    height: 180px;
-    margin: 0 1px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    overflow: auto;
-    background: var(--panel);
-}
+.order-table-wrap { height: 340px; }
 .order-table th { height: 42px; }
 .order-table td { height: 38px; }
 
@@ -571,4 +563,74 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 
 @media (max-width: 900px) {
   .customer-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== v8 viewport fit ===== */
+html, body { height: 100%; overflow: hidden; }
+
+#orders-page.page.active {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#orders-page .page-title {
+    flex: 0 0 auto;
+}
+
+#orders-page .groupbox {
+    flex: 0 0 auto;
+}
+
+#orders-page .order-table-wrap {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 110px;
+    overflow-y: auto;
+}
+
+#orders-page .order-bottom {
+    flex: 0 0 53px;
+    min-height: 53px;
+}
+
+/* Keep the product picker compact so SAVE ORDER always has room. */
+#orders-page .add-food {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin-bottom: 7px;
+}
+
+#orders-page .food-search {
+    height: 35px;
+    margin-bottom: 6px;
+}
+
+#orders-page .product-browser {
+    height: 116px;
+    padding: 6px 8px;
+}
+
+#orders-page .product-cards {
+    height: 102px;
+    gap: 7px;
+}
+
+#orders-page .product-card {
+    min-height: 96px;
+}
+
+#orders-page .product-card .product-image,
+#orders-page .product-card .product-image-placeholder {
+    height: 40px;
+}
+
+#orders-page .product-card.has-image {
+    grid-template-rows: auto 40px auto auto;
+}
+
+#orders-page .product-controls {
+    margin-top: 5px;
 }

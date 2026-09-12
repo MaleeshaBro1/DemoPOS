@@ -184,7 +184,7 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 
 .product-card {
     flex: 0 0 clamp(150px, 18vw, 205px);
-    min-height: 112px;
+    min-height: 150px;
     background: var(--field);
     border: 1px solid var(--border);
     border-radius: 9px;

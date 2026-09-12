@@ -11,12 +11,12 @@
     <aside class="sidebar">
         <div class="brand">DEMO POS</div>
         <nav class="nav">
-            <button class="nav-item active" data-page="orders">Orders</button>
-            <button class="nav-item" data-page="kitchen">Kitchen</button>
-            <button class="nav-item" data-page="status">Status</button>
-            <button class="nav-item" data-page="history">History</button>
-            <button class="nav-item" data-page="products">Products</button>
-            <button class="nav-item" data-page="stock">Stock</button>
+            <button class="nav-item active" data-page="orders"><span class="nav-icon">🧾</span><span>Orders</span></button>
+            <button class="nav-item" data-page="kitchen"><span class="nav-icon">🍳</span><span>Kitchen</span></button>
+            <button class="nav-item" data-page="status"><span class="nav-icon">📋</span><span>Status</span></button>
+            <button class="nav-item" data-page="history"><span class="nav-icon">🕘</span><span>History</span></button>
+            <button class="nav-item" data-page="products"><span class="nav-icon">🍔</span><span>Products</span></button>
+            <button class="nav-item" data-page="stock"><span class="nav-icon">📦</span><span>Stock</span></button>
         </nav>
     </aside>
 
@@ -27,37 +27,28 @@
             <fieldset class="groupbox">
                 <legend>Customer Information</legend>
                 <div class="customer-grid">
-                    <label>Customer Name:</label>
-                    <input id="customer-name" placeholder="Enter customer name">
-                    <label>Phone 1:</label>
-                    <input id="phone1" placeholder="Primary phone number">
-                    <label>Phone 2:</label>
-                    <input id="phone2" placeholder="Secondary phone number (optional)">
-                    <label>Address:</label>
-                    <input id="address" placeholder="Customer address">
-                    <label>Table Number:</label>
-                    <input id="table-number" type="number" min="1" value="1">
+                    <div class="customer-field"><label>Customer Name:</label><input id="customer-name" placeholder="Enter customer name"></div>
+                    <div class="customer-field"><label>Phone 1:</label><input id="phone1" placeholder="Primary phone number"></div>
+                    <div class="customer-field"><label>Phone 2:</label><input id="phone2" placeholder="Secondary phone number (optional)"></div>
+                    <div class="customer-field"><label>Table Number:</label><input id="table-number" type="number" min="1" value="1"></div>
+                    <div class="customer-field full-width"><label>Address:</label><input id="address" placeholder="Customer address"></div>
                 </div>
             </fieldset>
 
             <fieldset class="groupbox add-food">
                 <legend>Add Food</legend>
-                <input id="food-search" class="food-search-full" placeholder="Search by product name or code...">
+                <input id="food-search" class="food-search" placeholder="Search by product name or code...">
 
-                <div class="food-carousel">
-                    <button id="carousel-prev" class="carousel-arrow" aria-label="Scroll left">&#8249;</button>
-                    <div class="carousel-track-wrap">
-                        <div class="carousel-track" id="food-cards"></div>
-                    </div>
-                    <button id="carousel-next" class="carousel-arrow" aria-label="Scroll right">&#8250;</button>
+                <div class="product-browser">
+                    <div id="product-cards" class="product-cards" aria-label="Food products"></div>
                 </div>
 
-                <div class="add-food-bottom">
+                <div class="product-controls">
                     <div class="quantity-wrap">
                         <span>Quantity:</span>
                         <input id="food-quantity" type="number" min="1" value="1">
                     </div>
-                    <button id="add-food" class="text-button save">ADD TO ORDER</button>
+                    <button id="add-food" class="add-food-button">ADD TO ORDER</button>
                 </div>
             </fieldset>
 
@@ -136,7 +127,7 @@
             </div>
             <div class="large-panel table-panel">
                 <table class="data-table products-table">
-                    <thead><tr><th></th><th>Code</th><th>Product Name</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
+                    <thead><tr><th></th><th>Image</th><th>Code</th><th>Product Name</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
                     <tbody id="products-list"></tbody>
                 </table>
             </div>
@@ -155,6 +146,26 @@
             </div>
         </section>
     </main>
+</div>
+
+<div id="product-modal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+        <div class="modal-header"><h2 id="product-modal-title">Add Product</h2><button class="modal-close" id="product-modal-close">×</button></div>
+        <form id="product-form">
+            <input type="hidden" id="edit-product-id">
+            <div class="product-form-grid">
+                <div class="form-field"><label>Product Code</label><input id="product-code-input" required placeholder="e.g. B013"></div>
+                <div class="form-field"><label>Product Name</label><input id="product-name-input" required placeholder="Product name"></div>
+                <div class="form-field"><label>Price</label><input id="product-price-input" type="number" min="0" step="0.01" required></div>
+                <div class="form-field"><label>Stock</label><input id="product-stock-input" type="number" min="0" step="1" required></div>
+                <div class="form-field image-field">
+                    <label>Product Picture</label>
+                    <div class="image-upload-row"><div id="product-image-preview" class="image-preview">No image</div><div><input id="product-image-input" type="file" accept="image/*"><button type="button" class="small-button" id="remove-product-image">Remove Image</button><small>Upload a food image for the item card.</small></div></div>
+                </div>
+            </div>
+            <div class="modal-actions"><button type="button" class="small-button" id="product-modal-cancel">Cancel</button><button type="submit" class="primary-button">SAVE PRODUCT</button></div>
+        </form>
+    </div>
 </div>
 
 <div id="toast" class="toast"></div>

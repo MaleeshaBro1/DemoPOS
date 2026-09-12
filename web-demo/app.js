@@ -4,7 +4,7 @@ const defaultProducts = [
     { id: 3, code: "B012", name: "Vegan Rice", price: 300, stock: 65 }
 ];
 
-let products = JSON.parse(localStorage.getItem("demoPOS_products") || "null") || defaultProducts;
+let products = (JSON.parse(localStorage.getItem("demoPOS_products") || "null") || defaultProducts).map(p => ({ ...p, image: p.image || "" }));
 let orders = JSON.parse(localStorage.getItem("demoPOS_orders") || "null") || [];
 let currentOrder = [];
 let selectedOrderIndex = null;
@@ -34,65 +34,115 @@ function renderPage(page) {
 }
 
 const foodSearch = document.getElementById("food-search");
-const foodCardsTrack = document.getElementById("food-cards");
-const carouselTrackWrap = document.querySelector(".carousel-track-wrap");
-let selectedFoodId = null;
+const productCards = document.getElementById("product-cards");
+let selectedProductId = null;
 
-function refreshFoodSelect(filter = "") {
+function refreshProductCards(filter = "") {
     const q = filter.trim().toLowerCase();
     const matches = products.filter(p =>
-        !q || p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
+        p.stock > 0 &&
+        (!q || p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q))
     );
 
-    if (selectedFoodId !== null && !matches.some(p => p.id === selectedFoodId)) {
-        selectedFoodId = null;
-    }
+    productCards.innerHTML = "";
+    selectedProductId = null;
 
-    if (!matches.length) {
-        foodCardsTrack.innerHTML = '<div class="carousel-empty">No matching products.</div>';
-        return;
-    }
+    matches.forEach(p => {
+        const card = document.createElement("article");
+        card.className = "product-card" + (p.image ? " has-image" : "");
+        const imageMarkup = p.image
+            ? `<img class="product-image" src="${p.image}" alt="${escapeHtml(p.name)}">`
+            : `<div class="product-image-placeholder">🍽</div>`;
+        card.innerHTML = `
+            <div class="product-code">${escapeHtml(p.code)}</div>
+            ${imageMarkup}
+            <div class="product-name">${escapeHtml(p.name)}</div>
+            <div class="product-price">Rs. ${p.price.toFixed(2)}</div>
+            <div class="product-stock">Stock: ${p.stock}</div>
+        `;
 
-    foodCardsTrack.innerHTML = matches.map(p => `
-        <div class="food-card${p.id === selectedFoodId ? " selected" : ""}" data-id="${p.id}">
-            <div class="food-card-code">${escapeHtml(p.code)}</div>
-            <div class="food-card-name">${escapeHtml(p.name)}</div>
-            <div class="food-card-price">Rs. ${p.price.toFixed(2)}</div>
-            <div class="food-card-stock">Stock: ${p.stock}</div>
-        </div>`).join("");
-
-    foodCardsTrack.querySelectorAll(".food-card").forEach(card => {
         card.addEventListener("click", () => {
-            selectedFoodId = Number(card.dataset.id);
-            foodCardsTrack.querySelectorAll(".food-card").forEach(c => c.classList.remove("selected"));
+            productCards.querySelectorAll(".product-card").forEach(x => x.classList.remove("selected"));
             card.classList.add("selected");
+            selectedProductId = p.id;
         });
+
+        productCards.appendChild(card);
     });
 }
-foodSearch.addEventListener("input", () => refreshFoodSelect(foodSearch.value));
-refreshFoodSelect();
 
-document.getElementById("carousel-prev").addEventListener("click", () => {
-    carouselTrackWrap.scrollBy({ left: -190, behavior: "smooth" });
-});
-document.getElementById("carousel-next").addEventListener("click", () => {
-    carouselTrackWrap.scrollBy({ left: 190, behavior: "smooth" });
-});
+foodSearch.addEventListener("input", () => refreshProductCards(foodSearch.value));
+refreshProductCards();
 
 document.getElementById("add-food").addEventListener("click", () => {
-    const id = selectedFoodId;
     const qty = Math.max(1, Number(document.getElementById("food-quantity").value) || 1);
-    const product = products.find(p => p.id === id);
+    const product = products.find(p => p.id === selectedProductId);
+
     if (!product) return toast("Select a product first.");
     if (qty > product.stock) return toast("Not enough stock.");
-    const existing = currentOrder.find(i => i.productId === id);
+
+    const existing = currentOrder.find(i => i.productId === product.id);
+    const existingQty = existing ? existing.quantity : 0;
+    if (existingQty + qty > product.stock) return toast("Not enough stock.");
+
     if (existing) existing.quantity += qty;
     else currentOrder.push({
-        productId: product.id, code: product.code, name: product.name,
-        price: product.price, quantity: qty
+        productId: product.id,
+        code: product.code,
+        name: product.name,
+        price: product.price,
+        quantity: qty
     });
+
+    document.getElementById("food-quantity").value = "1";
     renderCurrentOrder();
 });
+
+// Touchscreen-friendly horizontal swipe / mouse drag.
+// Keep normal taps/clicks available for selecting product cards.
+let productDragging = false;
+let productPointerDown = false;
+let productStartX = 0;
+let productStartScroll = 0;
+let suppressProductClick = false;
+
+productCards.addEventListener("pointerdown", event => {
+    productPointerDown = true;
+    productDragging = false;
+    suppressProductClick = false;
+    productStartX = event.clientX;
+    productStartScroll = productCards.scrollLeft;
+});
+
+productCards.addEventListener("pointermove", event => {
+    if (!productPointerDown) return;
+    const distance = event.clientX - productStartX;
+
+    // A small movement is still a tap, so the card can be selected normally.
+    if (!productDragging && Math.abs(distance) < 8) return;
+
+    productDragging = true;
+    suppressProductClick = true;
+    productCards.classList.add("dragging");
+    productCards.scrollLeft = productStartScroll - distance;
+});
+
+function stopProductDrag() {
+    productPointerDown = false;
+    productDragging = false;
+    productCards.classList.remove("dragging");
+}
+
+productCards.addEventListener("pointerup", stopProductDrag);
+productCards.addEventListener("pointercancel", stopProductDrag);
+
+productCards.addEventListener("click", event => {
+    if (suppressProductClick) {
+        suppressProductClick = false;
+        event.preventDefault();
+        event.stopPropagation();
+    }
+}, true);
 
 function renderCurrentOrder() {
     const tbody = document.getElementById("current-items");
@@ -165,8 +215,7 @@ function clearCustomerForm() {
     document.getElementById("table-number").value = "1";
     document.getElementById("food-search").value = "";
     document.getElementById("food-quantity").value = "1";
-    selectedFoodId = null;
-    refreshFoodSelect();
+    refreshProductCards();
 }
 
 function renderKitchen() {
@@ -232,46 +281,137 @@ function renderProducts() {
     const list = products.filter(p => !q || p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q));
     document.getElementById("products-list").innerHTML = list.map((p, i) => `
         <tr>
-            <td>${i + 1}</td><td>${escapeHtml(p.code)}</td><td>${escapeHtml(p.name)}</td>
+            <td>${p.image ? `<img class="product-thumb" src="${p.image}" alt="">` : `<div class="product-thumb-placeholder">🍽</div>`}</td>
+            <td>${escapeHtml(p.code)}</td><td>${escapeHtml(p.name)}</td>
             <td>Rs. ${p.price.toFixed(2)}</td><td>${p.stock}</td>
             <td>
                 <button class="action-link" onclick="editProduct(${p.id})">Edit</button>
-                <button class="action-link" onclick="deleteProduct(${p.id})">Delete</button>
+                <button class="action-link delete" onclick="deleteProduct(${p.id})">Delete</button>
             </td>
         </tr>`).join("");
 }
 
 document.getElementById("product-search").addEventListener("input", renderProducts);
 
+const productModal = document.getElementById("product-modal");
+const productModalTitle = document.getElementById("product-modal-title");
+const productCodeInput = document.getElementById("product-code-input");
+const productNameInput = document.getElementById("product-name-input");
+const productPriceInput = document.getElementById("product-price-input");
+const productStockInput = document.getElementById("product-stock-input");
+const productImageInput = document.getElementById("product-image-input");
+const productImagePreview = document.getElementById("product-image-preview");
+let editingProductId = null;
+let pendingProductImage = "";
+
+function showProductImagePreview(src) {
+    productImagePreview.innerHTML = src ? `<img src="${src}" alt="Product preview">` : "No image";
+}
+
+function openProductModal(product = null) {
+    editingProductId = product ? product.id : null;
+    pendingProductImage = product?.image || "";
+    productModalTitle.textContent = product ? "Edit Product" : "Add Product";
+    productCodeInput.value = product?.code || "";
+    productNameInput.value = product?.name || "";
+    productPriceInput.value = product?.price ?? "";
+    productStockInput.value = product?.stock ?? "";
+    productImageInput.value = "";
+    showProductImagePreview(pendingProductImage);
+    productModal.classList.remove("hidden");
+    productModal.setAttribute("aria-hidden", "false");
+    setTimeout(() => productCodeInput.focus(), 0);
+}
+
+function closeProductModal() {
+    productModal.classList.add("hidden");
+    productModal.setAttribute("aria-hidden", "true");
+    editingProductId = null;
+    pendingProductImage = "";
+}
+
+document.getElementById("product-modal-close").addEventListener("click", closeProductModal);
+document.getElementById("product-modal-cancel").addEventListener("click", closeProductModal);
+productModal.addEventListener("click", event => { if (event.target === productModal) closeProductModal(); });
+
+const removeProductImageButton = document.getElementById("remove-product-image");
+if (removeProductImageButton) {
+    removeProductImageButton.addEventListener("click", () => {
+        pendingProductImage = "";
+        productImageInput.value = "";
+        showProductImagePreview("");
+    });
+}
+
+productImageInput.addEventListener("change", () => {
+    const file = productImageInput.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return toast("Please choose an image file.");
+    const reader = new FileReader();
+    reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+            const max = 700;
+            const scale = Math.min(1, max / Math.max(img.width, img.height));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(img.width * scale));
+            canvas.height = Math.max(1, Math.round(img.height * scale));
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            pendingProductImage = canvas.toDataURL("image/jpeg", 0.82);
+            showProductImagePreview(pendingProductImage);
+        };
+        img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById("product-form").addEventListener("submit", event => {
+    event.preventDefault();
+    const code = productCodeInput.value.trim();
+    const name = productNameInput.value.trim();
+    const price = Number(productPriceInput.value);
+    const stock = Number(productStockInput.value);
+    if (!code || !name || !Number.isFinite(price) || price < 0 || !Number.isFinite(stock) || stock < 0) {
+        return toast("Please enter valid product details.");
+    }
+    if (products.some(p => p.code.toLowerCase() === code.toLowerCase() && p.id !== editingProductId)) {
+        return toast("Product code already exists.");
+    }
+    if (editingProductId != null) {
+        const p = products.find(x => x.id === editingProductId);
+        if (!p) return closeProductModal();
+        p.code = code; p.name = name; p.price = price; p.stock = stock; p.image = pendingProductImage;
+        toast("Product updated.");
+    } else {
+        products.push({ id: Date.now(), code, name, price, stock, image: pendingProductImage });
+        toast("Product added.");
+    }
+    saveData();
+    refreshProductCards(foodSearch.value);
+    renderProducts();
+    renderStock();
+    closeProductModal();
+});
+
 function editProduct(id) {
     const p = products.find(x => x.id === id);
-    if (!p) return;
-    const name = prompt("Product name:", p.name);
-    if (name === null) return;
-    const price = Number(prompt("Price:", p.price));
-    const stock = Number(prompt("Stock:", p.stock));
-    if (!name.trim() || !Number.isFinite(price) || !Number.isFinite(stock)) return toast("Invalid product data.");
-    p.name = name.trim(); p.price = price; p.stock = stock;
-    saveData(); refreshFoodSelect(foodSearch.value); renderProducts(); renderStock();
+    if (p) openProductModal(p);
 }
 
 function deleteProduct(id) {
-    if (!confirm("Delete this product?")) return;
-    products = products.filter(p => p.id !== id);
-    saveData(); refreshFoodSelect(foodSearch.value); renderProducts(); renderStock();
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    if (!confirm(`Delete ${p.name}?`)) return;
+    products = products.filter(x => x.id !== id);
+    if (selectedProductId === id) selectedProductId = null;
+    saveData();
+    refreshProductCards(foodSearch.value);
+    renderProducts();
+    renderStock();
+    toast("Product deleted.");
 }
 
-document.getElementById("add-product").addEventListener("click", () => {
-    const code = prompt("Product code:");
-    if (!code) return;
-    const name = prompt("Product name:");
-    if (!name) return;
-    const price = Number(prompt("Price:"));
-    const stock = Number(prompt("Stock:"));
-    if (!Number.isFinite(price) || !Number.isFinite(stock)) return toast("Invalid product data.");
-    products.push({ id: Date.now(), code: code.trim(), name: name.trim(), price, stock });
-    saveData(); refreshFoodSelect(foodSearch.value); renderProducts(); renderStock(); toast("Product added.");
-});
+document.getElementById("add-product").addEventListener("click", () => openProductModal());
 
 function renderStock() {
     document.getElementById("stock-list").innerHTML = products.map(p => `

@@ -350,7 +350,8 @@ input:focus, select:focus { border-color: #536171; outline: none; }
     border: 1px solid var(--border);
     border-radius: 7px;
     background: var(--panel);
-    min-height: calc(100vh - 95px);
+    min-height: 0;
+    height: calc(100vh - 115px);
     overflow: auto;
 }
 
@@ -493,7 +494,7 @@ input:focus, select:focus { border-color: #536171; outline: none; }
 .add-food-button:hover, .primary-button:hover { background: #d99000; }
 .add-food-button:active, .primary-button:active { transform: translateY(1px); }
 
-.order-table-wrap { height: 340px; }
+.order-table-wrap { height: 242px; }
 .order-table th { height: 42px; }
 .order-table td { height: 38px; }
 
